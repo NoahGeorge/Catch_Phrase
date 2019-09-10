@@ -15,6 +15,29 @@
 #include "FS.h"
 #include "SD.h"
 #include "SPI.h"
+#include <LiquidCrystal.h>
+
+const int rs = 15, en = 2, d4 = 32, d5 = 33, d6 = 25, d7 = 26;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+bool currState = false;
+bool lastState = false;
+
+char screenDisplay[14] = {
+  ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '
+};
+
+char displayCatagories[14] = {
+  ' ',' ','C','a','t','e','g','o','r','i','e','s',' ',' '
+};
+
+
+void printToScreen(char toScreen[], int layer){
+  for(int i = 0; i < 13; ++i){
+    lcd.setCursor(i+1,layer);
+    lcd.write(toScreen[i]);
+  }
+}
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
     Serial.printf("Listing directory: %s\n", dirname);
@@ -174,9 +197,19 @@ void testFileIO(fs::FS &fs, const char * path){
 }
 
 void setup(){
-    pinMode(2,OUTPUT);
-    digitalWrite(2,HIGH);
-  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    lcd.begin(16, 2);
+    
+    pinMode(35,INPUT);
+      
     Serial.begin(115200);
     if(!SD.begin()){
         Serial.println("Card Mount Failed");
@@ -203,22 +236,33 @@ void setup(){
     uint64_t cardSize = SD.cardSize() / (1024 * 1024);
     Serial.printf("SD Card Size: %lluMB\n", cardSize);
 
-    listDir(SD, "/", 0);
-    createDir(SD, "/mydir");
-    listDir(SD, "/", 0);
-    removeDir(SD, "/mydir");
-    listDir(SD, "/", 2);
-    writeFile(SD, "/hello.txt", "Hello ");
-    appendFile(SD, "/hello.txt", "World!\n");
-    readFile(SD, "/hello.txt");
-    deleteFile(SD, "/foo.txt");
-    renameFile(SD, "/hello.txt", "/foo.txt");
-    readFile(SD, "/foo.txt");
-    testFileIO(SD, "/test.txt");
+    //listDir(SD, "/", 0);
+    //createDir(SD, "/mydir");
+    //listDir(SD, "/", 0);
+    //removeDir(SD, "/mydir");
+    //listDir(SD, "/", 2);
+    //writeFile(SD, "/hello.txt", "Hello ");
+    //appendFile(SD, "/hello.txt", "World!\n");
+    //readFile(SD, "/hello.txt");
+    //deleteFile(SD, "/foo.txt");
+    //renameFile(SD, "/hello.txt", "/foo.txt");
+    //readFile(SD, "/foo.txt");
+    //testFileIO(SD, "/test.txt");
     Serial.printf("Total space: %lluMB\n", SD.totalBytes() / (1024 * 1024));
     Serial.printf("Used space: %lluMB\n", SD.usedBytes() / (1024 * 1024));
 }
 
 void loop(){
+  
 
+  currState = digitalRead(35);
+
+  if(currState != lastState){
+    if(currState == true){
+      printToScreen(displayCatagories, 0);
+    }
+  delay(10);
+  }
+  lastState = currState;
+  
 }
