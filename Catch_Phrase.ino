@@ -20,22 +20,17 @@
 const int rs = 15, en = 2, d4 = 32, d5 = 33, d6 = 25, d7 = 26;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-bool currState = false;
-bool lastState = false;
-
-char screenDisplay[14] = {
-  ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '
-};
-
-char displayCatagories[14] = {
-  ' ',' ','C','a','t','e','g','o','r','i','e','s',' ',' '
-};
-
-
-void printToScreen(char toScreen[], int layer){
-  for(int i = 0; i < 13; ++i){
-    lcd.setCursor(i+1,layer);
-    lcd.write(toScreen[i]);
+void printToScreen(char toScreen[], int layer, bool isBig){
+  if(isBig == false){
+    for(int i = 0; i <= 13; ++i){
+      lcd.setCursor(i+1,layer);
+      lcd.write(toScreen[i]);
+    }
+  }else{
+    for(int i = 0; i <= 15; ++i){
+      lcd.setCursor(i,layer);
+      lcd.write(toScreen[i]);
+    }
   }
 }
 
@@ -208,7 +203,9 @@ void setup(){
     
     lcd.begin(16, 2);
     
-    pinMode(35,INPUT);
+    pinMode(35, INPUT);
+    pinMode(16, INPUT);
+    pinMode(17, INPUT);
       
     Serial.begin(115200);
     if(!SD.begin()){
@@ -254,15 +251,56 @@ void setup(){
 
 void loop(){
   
+  char clearDisplay[16] = {
+    ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '
+  };
 
-  currState = digitalRead(35);
+  char displayCategories[14] = {
+    ' ',' ','C','a','t','e','g','o','r','y',':',' ',' ',' '
+  };
 
-  if(currState != lastState){
-    if(currState == true){
-      printToScreen(displayCatagories, 0);
+  char categories[][16] = {
+    {'A','r','o','u','n','d',' ','t','h','e',' ','W','o','r','l','d'},
+    {' ','E','n','t','e','r','t','a','i','n','m','e','n','t',' ',' '},
+    {' ','E','v','e','r','y','d','a','y',' ','l','i','f','e',' ',' '}
+  };
+  
+  bool currStateLeft;
+  bool lastStateLeft;
+  bool currStateRight;
+  bool lastStateRight;
+  printToScreen(displayCategories, 0, false);
+  int selCategory = 0;
+  
+  while(true){
+    printToScreen(categories[selCategory], 1, 1);
+
+    currStateLeft = digitalRead(16);
+    currStateRight = digitalRead(17);
+
+    if(currStateLeft != lastStateLeft){
+      if(currStateLeft == true){
+        selCategory++;
+        if(selCategory > 2){
+          selCategory = 0;
+        }
+      }
+    delay(10);
     }
-  delay(10);
+    
+    if(currStateRight != lastStateRight){
+      if(currStateRight == true){
+        selCategory--;
+        if(selCategory < 0){
+          selCategory = 2;
+        }
+      }
+    delay(10);
+    }
+    
+    lastStateLeft = currStateLeft;
+    lastStateRight = currStateRight;
   }
-  lastState = currState;
+  
   
 }
