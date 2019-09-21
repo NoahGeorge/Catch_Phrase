@@ -83,20 +83,25 @@ void removeDir(fs::FS &fs, const char * path){
     }
 }
 
-void readFile(fs::FS &fs, const char * path){
-    Serial.printf("Reading file: %s\n", path);
+char* readFile(fs::FS &fs, const char * path){
+    //Serial.printf("Reading file: %s\n", path);
 
+    char oneLine[16];
+    Serial.println("Opening File");
     File file = fs.open(path);
-    if(!file){
-        Serial.println("Failed to open file for reading");
-        return;
-    }
-
-    Serial.print("Read from file: ");
+    Serial.println("File Opened");
+    
+    int count = 0;
     while(file.available()){
-        Serial.write(file.read());
+        Serial.println("Reading File");
+        oneLine[count] = file.read();
+        Serial.println(oneLine[count]);
+        count++;
     }
+    //Serial.println(oneLine);
     file.close();
+    Serial.println("File Closed");
+    return oneLine;
 }
 
 void writeFile(fs::FS &fs, const char * path, const char * message){
@@ -193,19 +198,13 @@ void testFileIO(fs::FS &fs, const char * path){
 
 void setup(){
     
-    
-    
-    
-    
-    
-    
-    
-    
     lcd.begin(16, 2);
     
-    pinMode(35, INPUT);
+    pinMode(35, INPUT); //Setup pins for the buttons
     pinMode(16, INPUT);
     pinMode(17, INPUT);
+    pinMode(14, INPUT);
+    pinMode(27, INPUT);
       
     Serial.begin(115200);
     if(!SD.begin()){
@@ -247,10 +246,18 @@ void setup(){
     //testFileIO(SD, "/test.txt");
     Serial.printf("Total space: %lluMB\n", SD.totalBytes() / (1024 * 1024));
     Serial.printf("Used space: %lluMB\n", SD.usedBytes() / (1024 * 1024));
+    
 }
 
 void loop(){
+
+  char wordDir[] = "/catchphraseWordList"; //Directory of the word lists
+
   
+  SD.begin();
+  File root = SD.open(wordDir);
+    
+
   char clearDisplay[16] = {
     ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '
   };
@@ -259,48 +266,58 @@ void loop(){
     ' ',' ','C','a','t','e','g','o','r','y',':',' ',' ',' '
   };
 
-  char categories[][16] = {
-    {'A','r','o','u','n','d',' ','t','h','e',' ','W','o','r','l','d'},
-    {' ','E','n','t','e','r','t','a','i','n','m','e','n','t',' ',' '},
-    {' ','E','v','e','r','y','d','a','y',' ','l','i','f','e',' ',' '}
-  };
+  char* categories;
   
   bool currStateLeft;
   bool lastStateLeft;
+  
   bool currStateRight;
   bool lastStateRight;
+  
+  bool currStateCategory;
+  bool lastStateCategory;
+
+  bool currStateNext;
+  bool lastStateNext;
+  
   printToScreen(displayCategories, 0, false);
   int selCategory = 0;
   
-  while(true){
-    printToScreen(categories[selCategory], 1, 1);
+  while(digitalRead(35) == false){
+    //printToScreen(categories[selCategory], 1, 1);
 
     currStateLeft = digitalRead(16);
     currStateRight = digitalRead(17);
+    currStateCategory = digitalRead(14);
+    currStateNext = digitalRead(27);
 
-    if(currStateLeft != lastStateLeft){
-      if(currStateLeft == true){
-        selCategory++;
-        if(selCategory > 2){
-          selCategory = 0;
-        }
-      }
-    delay(10);
-    }
     
-    if(currStateRight != lastStateRight){
-      if(currStateRight == true){
-        selCategory--;
-        if(selCategory < 0){
-          selCategory = 2;
+
+    if(currStateCategory != lastStateCategory){
+      if(currStateCategory == true){
+        File file = root.openNextFile();
+        
+        //file = root.openNextFile();
+        if(file){
+          Serial.println("Rewinding");
+          root.rewindDirectory();
         }
-      }
-    delay(10);
+        Serial.println("Professional Signal");
+        //Serial.println("  Category: ");
+        //Serial.println(file.name());
+        //Serial.print("  SIZE: ");
+        //Serial.println(file.size());
+        //printToScreen(file.name(), 1, 1);
+            
+        //categories* = readFile(SD,file.name());
+          
+        lcd.setCursor(0,0);
+        lcd.write(readFile(SD,file.name()));
+        //Serial.println(readFile(SD,file.name()));
+      }   
     }
-    
-    lastStateLeft = currStateLeft;
-    lastStateRight = currStateRight;
+  
+    delay(10);
+    lastStateCategory = currStateCategory;
   }
-  
-  
 }
