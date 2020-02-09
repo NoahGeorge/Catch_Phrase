@@ -298,7 +298,7 @@ void loop(){
         File file = root.openNextFile();
         
         //file = root.openNextFile();
-        if(file){
+        if(!file){
           Serial.println("Rewinding");
           root.rewindDirectory();
         }
