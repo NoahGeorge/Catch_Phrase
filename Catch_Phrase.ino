@@ -17,10 +17,10 @@
 #include "SPI.h"
 #include <LiquidCrystal.h>
 
-const int rs = 15, en = 2, d4 = 32, d5 = 33, d6 = 25, d7 = 26;
+const int rs = 15, en = 2, d4 = 32, d5 = 33, d6 = 25, d7 = 26;//Screen Pins
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-void printToScreen(char toScreen[], int layer, bool isBig){
+void printToScreen(char toScreen[], int layer, bool isBig){//This function writes the charactor array to the screen. isBig is for centering of the screen purposes.
   if(isBig == false){
     for(int i = 0; i <= 13; ++i){
       lcd.setCursor(i+1,layer);
@@ -34,7 +34,7 @@ void printToScreen(char toScreen[], int layer, bool isBig){
   }
 }
 
-void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
+void listDir(fs::FS &fs, const char * dirname, uint8_t levels){//lists the directories (not really needed for our purposes)
     Serial.printf("Listing directory: %s\n", dirname);
 
     File root = fs.open(dirname);
@@ -65,7 +65,7 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
     }
 }
 
-void createDir(fs::FS &fs, const char * path){
+void createDir(fs::FS &fs, const char * path){//creates a directory (not really needed for our purposes)
     Serial.printf("Creating Dir: %s\n", path);
     if(fs.mkdir(path)){
         Serial.println("Dir created");
@@ -74,7 +74,7 @@ void createDir(fs::FS &fs, const char * path){
     }
 }
 
-void removeDir(fs::FS &fs, const char * path){
+void removeDir(fs::FS &fs, const char * path){//we don't really need this
     Serial.printf("Removing Dir: %s\n", path);
     if(fs.rmdir(path)){
         Serial.println("Dir removed");
@@ -206,7 +206,7 @@ void setup(){
     pinMode(14, INPUT);
     pinMode(27, INPUT);
       
-    Serial.begin(115200);
+    Serial.begin(115200);//Finds the SD Card
     if(!SD.begin()){
         Serial.println("Card Mount Failed");
         return;
@@ -251,7 +251,7 @@ void setup(){
 
 void loop(){
 
-  char wordDir[] = "/catchphraseWordList"; //Directory of the word lists
+  char wordDir[] = "/"; //Directory of the word lists
 
   
   SD.begin();
@@ -286,7 +286,7 @@ void loop(){
   while(digitalRead(35) == false){
     //printToScreen(categories[selCategory], 1, 1);
 
-    currStateLeft = digitalRead(16);
+    currStateLeft = digitalRead(16);//buttons for controlling selections
     currStateRight = digitalRead(17);
     currStateCategory = digitalRead(14);
     currStateNext = digitalRead(27);
@@ -320,4 +320,5 @@ void loop(){
     delay(10);
     lastStateCategory = currStateCategory;
   }
+  Serial.println("Go!!!!");
 }
