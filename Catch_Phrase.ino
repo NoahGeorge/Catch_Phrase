@@ -285,14 +285,14 @@ void loop(){
 
     SD.begin();
     File root = SD.open(wordDir);
+    File category = root.openNextFile();
   
     
 
   //char clearDisplay[16] = "                ";
 
-  char displayCategories[] = "Category";
+  char displayCategories[] = "Category:";
 
-  char* categories;
   
 
   
@@ -300,7 +300,6 @@ void loop(){
   int selCategory = 0;
   
   while(digitalRead(35) == false){
-    //printToScreen(categories[selCategory], 1, 1);
 
     currStateLeft = digitalRead(16);//buttons for controlling selections
     currStateRight = digitalRead(17);
@@ -309,8 +308,22 @@ void loop(){
 
 
 
-    if(currStateLeft != lastStateLeft || currStateRight != lastStateLeft){
-      
+    if(currStateLeft != lastStateLeft || currStateRight != lastStateRight){
+      if(currStateLeft == 1 || currStateRight == 1){
+        if(currStateRight == 1){
+          
+          category = root.openNextFile();
+          
+          if(! category){
+            root.rewindDirectory();
+            category = root.openNextFile();
+          }
+          
+          printToScreen(strdup(category.name()),1,1);
+          Serial.println(category.name());
+          
+        }
+      }
     }
 
     if(currStateCategory != lastStateCategory){//detects if the category has been selected
