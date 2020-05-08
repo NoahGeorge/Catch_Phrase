@@ -20,38 +20,29 @@
 const int rs = 15, en = 2, d4 = 32, d5 = 33, d6 = 25, d7 = 26;//Screen Pins
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-void printToScreen(char toScreen[], int layer, bool isBig){//This function writes the charactor array to the screen. isBig is for centering of the screen purposes.
-  if(isBig == false){
-    for(int i = 0; i <= 13; ++i){
-      lcd.setCursor(i+1,layer);
-      lcd.write(toScreen[i]);
-    }
-  }else{
-    for(int i = 0; i <= 15; ++i){
-      lcd.setCursor(i,layer);
+void printToScreen(char toScreen[], int layer){//This function writes the charactor array to the screen. isBig is for centering of the screen purposes.
+  toScreen = toScreen + 1;
+    toScreen[strlen(toScreen)-4] = '\0';//Cleans up the name
+      
+
+    for(int i = 0; i < strlen(toScreen); ++i){
+      lcd.setCursor(i+7-(strlen(toScreen)/2),layer);
       lcd.write(toScreen[i]);
     }
   }
 }
 
-void printToScreenConst(const char toScreenConst[], int layer, bool isBig){//This function is the same as the regular version but it accepts const char*
+void printToScreenConst(const char toScreenConst[], int layer){//This function is the same as the regular version but it accepts const char*
 
+    //TODO: add error detector for words too long to display on screen
     char* toScreen = strdup(toScreenConst);
     
     toScreen = toScreen + 1;
     toScreen[strlen(toScreen)-4] = '\0';//Cleans up the name
-    
-    Serial.println(toScreen);
-  
-  if(isBig == false){
+      
+
     for(int i = 0; i < strlen(toScreen); ++i){
-      Serial.println(i);
-      lcd.setCursor(i+8-(strlen(toScreen)/2),layer);
-      lcd.write(toScreen[i]);
-    }
-  }else{
-    for(int i = 0; i <= 15; ++i){
-      lcd.setCursor(i,layer);
+      lcd.setCursor(i+7-(strlen(toScreen)/2),layer);
       lcd.write(toScreen[i]);
     }
   }
