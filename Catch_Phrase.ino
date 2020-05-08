@@ -20,31 +20,17 @@
 const int rs = 15, en = 2, d4 = 32, d5 = 33, d6 = 25, d7 = 26;//Screen Pins
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-void printToScreen(char toScreen[], int layer){//This function writes the charactor array to the screen. isBig is for centering of the screen purposes.
-  toScreen = toScreen + 1;
-    toScreen[strlen(toScreen)-4] = '\0';//Cleans up the name
-      
-
-    for(int i = 0; i < strlen(toScreen); ++i){
-      lcd.setCursor(i+7-(strlen(toScreen)/2),layer);
-      lcd.write(toScreen[i]);
-    }
-  }
-}
-
-void printToScreenConst(const char toScreenConst[], int layer){//This function is the same as the regular version but it accepts const char*
-
-    //TODO: add error detector for words too long to display on screen
-    char* toScreen = strdup(toScreenConst);
-    
+void printToScreen(char toScreen[], int layer, int type){//This function writes the charactor array to the screen. isBig is for centering of the screen purposes.////Type = 0 standard; Type = 1 category;
+  
+  if(type == 1){
     toScreen = toScreen + 1;
     toScreen[strlen(toScreen)-4] = '\0';//Cleans up the name
+  }
       
 
-    for(int i = 0; i < strlen(toScreen); ++i){
-      lcd.setCursor(i+7-(strlen(toScreen)/2),layer);
-      lcd.write(toScreen[i]);
-    }
+  for(int i = 0; i < strlen(toScreen); ++i){
+    lcd.setCursor(i+8-(strlen(toScreen)/2),layer);
+    lcd.write(toScreen[i]);
   }
 }
 
@@ -270,9 +256,9 @@ void setup(){
     File root = SD.open(wordDir);
     File category = root.openNextFile();
 
-    printToScreenConst(category.name(),1,false);
+    printToScreen(strdup(category.name()),1,1);
 
-    Serial.println(category.name());
+    Serial.println(strdup(category.name()));
 
     root.close();
     
@@ -302,19 +288,15 @@ void loop(){
   
     
 
-  char clearDisplay[16] = {
-    ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '
-  };
+  //char clearDisplay[16] = "                ";
 
-  char displayCategories[14] = {
-    ' ',' ','C','a','t','e','g','o','r','y',':',' ',' ',' '
-  };
+  char displayCategories[] = "Category";
 
   char* categories;
   
 
   
-  printToScreen(displayCategories, 0, false);
+  printToScreen(displayCategories, 0, 0);
   int selCategory = 0;
   
   while(digitalRead(35) == false){
