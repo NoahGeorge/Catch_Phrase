@@ -34,6 +34,29 @@ void printToScreen(char toScreen[], int layer, bool isBig){//This function write
   }
 }
 
+void printToScreenConst(const char toScreenConst[], int layer, bool isBig){//This function is the same as the regular version but it accepts const char*
+
+    char* toScreen = strdup(toScreenConst);
+    
+    toScreen = toScreen + 1;
+    toScreen[strlen(toScreen)-4] = '\0';//Cleans up the name
+    
+    Serial.println(toScreen);
+  
+  if(isBig == false){
+    for(int i = 0; i < strlen(toScreen); ++i){
+      Serial.println(i);
+      lcd.setCursor(i+8-(strlen(toScreen)/2),layer);
+      lcd.write(toScreen[i]);
+    }
+  }else{
+    for(int i = 0; i <= 15; ++i){
+      lcd.setCursor(i,layer);
+      lcd.write(toScreen[i]);
+    }
+  }
+}
+
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels){//lists the directories (not really needed for our purposes)
     Serial.printf("Listing directory: %s\n", dirname);
 
@@ -198,6 +221,8 @@ void testFileIO(fs::FS &fs, const char * path){
 
 void setup(){
     
+    
+    
     lcd.begin(16, 2);
     
     pinMode(35, INPUT); //Setup pins for the buttons
@@ -246,16 +271,44 @@ void setup(){
     //testFileIO(SD, "/test.txt");
     Serial.printf("Total space: %lluMB\n", SD.totalBytes() / (1024 * 1024));
     Serial.printf("Used space: %lluMB\n", SD.usedBytes() / (1024 * 1024));
+
+    char wordDir[] = "/"; //Directory of the word lists
+
+  
+    SD.begin();
+    File root = SD.open(wordDir);
+    File category = root.openNextFile();
+
+    printToScreenConst(category.name(),1,false);
+
+    Serial.println(category.name());
+
+    root.close();
+    
+    
+
     
 }
 
 void loop(){
 
-  char wordDir[] = "/"; //Directory of the word lists
-
+    bool currStateLeft;
+    bool lastStateLeft;
   
-  SD.begin();
-  File root = SD.open(wordDir);
+    bool currStateRight;
+    bool lastStateRight;
+  
+    bool currStateCategory;
+    bool lastStateCategory;
+
+    bool currStateNext;
+    bool lastStateNext;
+
+    char wordDir[] = "/"; //Directory of the word lists
+
+    SD.begin();
+    File root = SD.open(wordDir);
+  
     
 
   char clearDisplay[16] = {
@@ -268,17 +321,7 @@ void loop(){
 
   char* categories;
   
-  bool currStateLeft;
-  bool lastStateLeft;
-  
-  bool currStateRight;
-  bool lastStateRight;
-  
-  bool currStateCategory;
-  bool lastStateCategory;
 
-  bool currStateNext;
-  bool lastStateNext;
   
   printToScreen(displayCategories, 0, false);
   int selCategory = 0;
@@ -291,10 +334,17 @@ void loop(){
     currStateCategory = digitalRead(14);
     currStateNext = digitalRead(27);
 
-    
 
-    if(currStateCategory != lastStateCategory){
+
+    if(currStateLeft != lastStateLeft || currStateRight != lastStateLeft){
+      
+    }
+
+    if(currStateCategory != lastStateCategory){//detects if the category has been selected
       if(currStateCategory == true){
+        Serial.println(digitalRead(16));
+        Serial.println(digitalRead(17));
+        
         File file = root.openNextFile();
         
         //file = root.openNextFile();
@@ -319,6 +369,8 @@ void loop(){
   
     delay(10);
     lastStateCategory = currStateCategory;
+    lastStateLeft     = currStateLeft;
+    lastStateRight    = currStateRight;
   }
   Serial.println("Go!!!!");
 }
