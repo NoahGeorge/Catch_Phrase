@@ -20,6 +20,31 @@
 const int rs = 15, en = 2, d4 = 32, d5 = 33, d6 = 25, d7 = 26;//Screen Pins
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
+//team symbols
+
+byte team1[] = {
+  B11100,
+  B01000,
+  B01000,
+  B00000,
+  B00110,
+  B00010,
+  B00010,
+  B00111
+};
+
+byte team2[] = {
+  B11100,
+  B01000,
+  B01000,
+  B00000,
+  B00110,
+  B00001,
+  B00010,
+  B00111
+};
+
+
 void printToScreen(char toScreen[], int layer, int type){//This function writes the charactor array to the screen. Type = 0 standard; Type = 1 category(removes .txt and \;
   
   if(type == 1){
@@ -28,7 +53,7 @@ void printToScreen(char toScreen[], int layer, int type){//This function writes 
   }
       
 
-  for(int i = 0; i < 15; ++i){
+  for(int i = 1; i < 14; ++i){
     
     lcd.setCursor(i,layer);
     
@@ -38,6 +63,11 @@ void printToScreen(char toScreen[], int layer, int type){//This function writes 
       lcd.write(toScreen[i-(8-(strlen(toScreen)/2))]);
     }
   }
+  lcd.setCursor(0,0);
+  lcd.write(byte(0));
+  lcd.setCursor(15,0);
+  lcd.write(byte(1));
+  
 }
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels){//lists the directories (not really needed for our purposes)
@@ -206,7 +236,10 @@ void setup(){
     
     
     
-    lcd.begin(16, 2);
+  lcd.begin(16, 2);
+  lcd.createChar(0,team1);
+  lcd.createChar(1,team2);
+    
     
     pinMode(35, INPUT); //Setup pins for the buttons
     pinMode(16, INPUT);
