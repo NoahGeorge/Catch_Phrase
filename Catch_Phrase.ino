@@ -20,7 +20,7 @@
 const int rs = 15, en = 2, d4 = 32, d5 = 33, d6 = 25, d7 = 26;//Screen Pins
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-void printToScreen(char toScreen[], int layer, int type){//This function writes the charactor array to the screen. isBig is for centering of the screen purposes.////Type = 0 standard; Type = 1 category;
+void printToScreen(char toScreen[], int layer, int type){//This function writes the charactor array to the screen. Type = 0 standard; Type = 1 category(removes .txt and \;
   
   if(type == 1){
     toScreen = toScreen + 1;
@@ -28,9 +28,15 @@ void printToScreen(char toScreen[], int layer, int type){//This function writes 
   }
       
 
-  for(int i = 0; i < strlen(toScreen); ++i){
-    lcd.setCursor(i+8-(strlen(toScreen)/2),layer);
-    lcd.write(toScreen[i]);
+  for(int i = 0; i < 15; ++i){
+    
+    lcd.setCursor(i,layer);
+    
+    if (i < 8-(strlen(toScreen)/2) || i >= ceil(8+strlen(toScreen)/2.0)){//writes over the entire screen to remove what was there previously
+      lcd.write(" ");
+    }else{
+      lcd.write(toScreen[i-(8-(strlen(toScreen)/2))]);
+    }
   }
 }
 
@@ -256,10 +262,14 @@ void setup(){
     File root = SD.open(wordDir);
     File category = root.openNextFile();
 
+    if(! category){//end of the list
+      Serial.println("No lists"); 
+    }else{
+    
     printToScreen(strdup(category.name()),1,1);
 
     Serial.println(strdup(category.name()));
-
+    }
     root.close();
     
     
@@ -286,6 +296,10 @@ void loop(){
     SD.begin();
     File root = SD.open(wordDir);
     File category = root.openNextFile();
+
+    if(! category){//end of the list
+      Serial.println("No lists");
+    }
   
     
 
@@ -308,14 +322,14 @@ void loop(){
 
 
 
-    if(currStateLeft != lastStateLeft || currStateRight != lastStateRight){
+    if(currStateLeft != lastStateLeft || currStateRight != lastStateRight){//select your category
       if(currStateLeft == 1 || currStateRight == 1){
-        if(currStateRight == 1){
-          
+        if(currStateRight == 1){//Only gooes in one direction
+          //TODO: Use Doubly linked lists to travel the list in both directions
           category = root.openNextFile();
           
-          if(! category){
-            root.rewindDirectory();
+          if(! category){//end of the list
+            root.rewindDirectory();//go to list start
             category = root.openNextFile();
           }
           
