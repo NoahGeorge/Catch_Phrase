@@ -312,19 +312,30 @@ void setup(){
 
 void loop(){
 
+    //State of the left button
     bool currStateLeft;
     bool lastStateLeft;
-  
+
+   //State of the Right button
     bool currStateRight;
     bool lastStateRight;
-  
+
+    //State of the category button
     bool currStateCategory;
     bool lastStateCategory;
 
+    //State of the button for next
     bool currStateNext;
     bool lastStateNext;
 
-    char wordDir[] = "/"; //Directory of the word lists
+    //State if the button for Go
+    bool currStateGo;
+    bool lastStateGo;
+
+    
+
+    //Directory of the word lists
+    const char wordDir[] = "/"; 
 
     SD.begin();
     File root = SD.open(wordDir);
@@ -339,6 +350,7 @@ void loop(){
   //char clearDisplay[16] = "                ";
 
   char displayCategories[] = "Category:";
+  char phrase[17];
 
   
 
@@ -346,16 +358,17 @@ void loop(){
   printToScreen(displayCategories, 0, 0);
   int selCategory = 0;
   
-  while(digitalRead(35) == false){
+  while(true){
 
-    currStateLeft = digitalRead(16);//buttons for controlling selections
-    currStateRight = digitalRead(17);
+    currStateLeft     = digitalRead(16);//buttons for controlling selections
+    currStateRight    = digitalRead(17);
     currStateCategory = digitalRead(14);
-    currStateNext = digitalRead(27);
+    currStateGo       = digitalRead(35);
+    
 
 
-
-    if(currStateLeft != lastStateLeft || currStateRight != lastStateRight){//select your category
+    //This detects if the left or right buttons have been pressed to change the catagory
+    if(currStateLeft != lastStateLeft || currStateRight != lastStateRight){//I
       if(currStateLeft == 1 || currStateRight == 1){
         if(currStateRight == 1){//Only gooes in one direction
           //TODO: Use Doubly linked lists to travel the list in both directions
@@ -372,31 +385,36 @@ void loop(){
         }
       }
     }
-
-    if(currStateCategory != lastStateCategory){//detects if the category has been selected
-      if(currStateCategory == true){
-        Serial.println(digitalRead(16));
-        Serial.println(digitalRead(17));
-        
-        File file = root.openNextFile();
-        
-        //file = root.openNextFile();
-        if(!file){
-          Serial.println("Rewinding");
-          root.rewindDirectory();
+    //This detects if the catagory has been chosen and starts the game
+    if(currStateGo != lastStateGo){
+      if(currStateGo== true){
+        if(!category.available()){
+          Serial.println("No words in category");
+          return;
         }
-        Serial.println("Professional Signal");
-        //Serial.println("  Category: ");
-        //Serial.println(file.name());
-        //Serial.print("  SIZE: ");
-        //Serial.println(file.size());
-        //printToScreen(file.name(), 1, 1);
+
+        unsigned long startTime = millis();
+        while(millis() < startTime + 60000){
+          currStateNext = digitalRead(27);
+          if(currStateNext != lastStateNext){
+            if(currStateNext == true){
+              Serial.println("Next Word");
+        
             
-        //categories* = readFile(SD,file.name());
           
-        lcd.setCursor(0,0);
-        lcd.write(readFile(SD,file.name()));
-        //Serial.println(readFile(SD,file.name()));
+              int i = 1;
+              while(category.peek() != '\n' && category.peek() != -1 && i < 14){
+                phrase[i] = category.read();
+                i++;
+                Serial.println(i);
+              }
+              //printToScreen(phrase,0,1);
+            }
+        
+          }
+          delay(10);
+          lastStateNext = currStateNext;
+        }
       }   
     }
   
@@ -404,6 +422,7 @@ void loop(){
     lastStateCategory = currStateCategory;
     lastStateLeft     = currStateLeft;
     lastStateRight    = currStateRight;
+    lastStateGo       = currStateGo;
   }
   Serial.println("Go!!!!");
 }
