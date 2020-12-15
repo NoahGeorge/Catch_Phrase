@@ -45,50 +45,15 @@ byte team2[] = {
 };
 
 
-void printToScreen(char toScreen[], int layer, int opcode){//This function writes the charactor array to the screen. Type = 0 standard; Type = 1 category(removes .txt and \;
-  /* Opcodes for print to screen:
-   * 
-   * 0 - Used for the category words. Uses the top and bottom lines.
-   * 
-   * 
-   * 
-   * 
-   */
-  // Layer 0 is the top row
-  // layer 1 is the bottom row
+void printToScreen(char toScreen[], int layer, int type){//This function writes the charactor array to the screen. Type = 0 standard; Type = 1 category(removes .txt and \;
   
-  
-  
-  
-  if(opcode == 0){
-    if(strlen(toScreen) <= 14){
-      printWordToScreen(toScreen, 0);
-    }
-  }
-  
-  if(opcode == 1){
+  if(type == 1){
     toScreen = toScreen + 1;
     toScreen[strlen(toScreen)-4] = '\0';//Cleans up the name
-    printWordToScreen(toScreen, 0);
   }
       
-  if(opcode == 2){
-    
-  }
-  
-  
-  //Draw the team numbers
-  lcd.setCursor(0,0);
-  lcd.write(byte(0));
-  lcd.setCursor(15,0);
-  lcd.write(byte(1));
-  
-}
 
-
-void printWordToScreen(char toScreen[], int layer){
-
-  for(int i = 1; i <= 16; ++i){
+  for(int i = 1; i < 14; ++i){
     
     lcd.setCursor(i,layer);
     
@@ -97,11 +62,11 @@ void printWordToScreen(char toScreen[], int layer){
     }else{
       lcd.write(toScreen[i-(8-(strlen(toScreen)/2))]);
     }
-
-
-
-
-
+  }
+  lcd.setCursor(0,0);
+  lcd.write(byte(0));
+  lcd.setCursor(15,0);
+  lcd.write(byte(1));
   
 }
 
@@ -437,13 +402,13 @@ void loop(){
         
             
           
-              int i = 0;
+              int i = 1;
               while(category.peek() != '\n' && category.peek() != -1 && i < 14){
                 phrase[i] = category.read();
                 i++;
                 Serial.println(i);
               }
-              printToScreen(phrase,0,1);
+              //printToScreen(phrase,0,1);
             }
         
           }
