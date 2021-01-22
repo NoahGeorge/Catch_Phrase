@@ -46,28 +46,45 @@ byte team2[] = {
 
 
 void printToScreen(char toScreen[], int layer, int type){//This function writes the charactor array to the screen. Type = 0 standard; Type = 1 category(removes .txt and \;
+
+
   
+  //Cleans up the name
   if(type == 1){
     toScreen = toScreen + 1;
-    toScreen[strlen(toScreen)-4] = '\0';//Cleans up the name
+    //toScreen[strlen(toScreen)-4] = '\0';//Ends the string before the extension
   }
+  
       
+  //Clears line
+  for(int i = 1; i <= 16; ++i){
+    lcd.setCursor(i,layer);
+    lcd.write(" ");
+  }
 
-  for(int i = 1; i < 14; ++i){
+  int j = 0; //word interator
+
+  int startPos = (8-(strlen(toScreen)/2));
+  
+  for(int i = startPos; i < startPos + strlen(toScreen); ++i){
     
     lcd.setCursor(i,layer);
     
-    if (i < 8-(strlen(toScreen)/2) || i >= ceil(8+strlen(toScreen)/2.0)){//writes over the entire screen to remove what was there previously
-      lcd.write(" ");
-    }else{
-      lcd.write(toScreen[i-(8-(strlen(toScreen)/2))]);
-    }
+    lcd.write(toScreen[j]);
+
+    j++;
+    
+    
   }
+  
+  
+}
+
+void printTeamSymbols(){
   lcd.setCursor(0,0);
   lcd.write(byte(0));
   lcd.setCursor(15,0);
   lcd.write(byte(1));
-  
 }
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels){//lists the directories (not really needed for our purposes)
@@ -373,14 +390,32 @@ void loop(){
         if(currStateRight == 1){//Only gooes in one direction
           //TODO: Use Doubly linked lists to travel the list in both directions
           category = root.openNextFile();
+
+
+          char systemVolume[] = "/System Volume";
+          boolean sysVolSame = true;
+          for(int i = 0; i < strlen(systemVolume); ++i){
+            if(systemVolume[i] != category.name()[i]){
+              sysVolSame = false;
+              
+              break;
+            }
+          }
+          if(sysVolSame){//skip system volume information
+            Serial.println("System Volume Skipped");
+            category = root.openNextFile();
+          }
           
           if(! category){//end of the list
             root.rewindDirectory();//go to list start
             category = root.openNextFile();
           }
+
+          
           
           printToScreen(strdup(category.name()),1,1);
           Serial.println(category.name());
+          
           
         }
       }
