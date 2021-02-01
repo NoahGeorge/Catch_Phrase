@@ -20,7 +20,6 @@
 const int rs = 15, en = 2, d4 = 32, d5 = 33, d6 = 25, d7 = 26;//Screen Pins
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-<<<<<<< HEAD
 //Scoring
 int team1Score = 0;
 int team2Score = 0;
@@ -38,7 +37,7 @@ volatile int secondCounter;
 int gameClock;
 hw_timer_t *timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
-=======
+
 //team symbols
 
 byte team1[] = {
@@ -51,7 +50,6 @@ byte team1[] = {
   B00010,
   B00111
 };
->>>>>>> parent of 25351b3... Random game length
 
 byte team2[] = {
   B11100,
@@ -269,7 +267,6 @@ void testFileIO(fs::FS &fs, const char * path){
     file.close();
 }
 
-<<<<<<< HEAD
 /*
   ╔╗─╔╗╔═══╗╔╗───╔═══╗╔═══╗╔═══╗     ╔═══╗╔╗─╔╗╔═╗─╔╗╔═══╗╔════╗╔══╗╔═══╗╔═╗─╔╗╔═══╗
   ║║─║║║╔══╝║║───║╔═╗║║╔══╝║╔═╗║     ║╔══╝║║─║║║║╚╗║║║╔═╗║║╔╗╔╗║╚╣─╝║╔═╗║║║╚╗║║║╔═╗║
